@@ -181,7 +181,9 @@ void AUE5TopDownARPGPlayerController::OnInventoryOpenStarted()
 
 			if(PlayerCharacter->IsPlayerInPickup())
 			{
+				ABaseItem* Item = PlayerCharacter->GetPickupItem();
 				PlayerCharacter->DeactivatePickupUI();
+				PlayerCharacter->SetPickupItem(Item);
 			}
 		}
 	}
@@ -201,17 +203,51 @@ void AUE5TopDownARPGPlayerController::OnInventoryItemDropPickupStarted()
 		if(SelectedItemID.IsSet())
 		{
 			UE_LOG(LogUE5TopDownARPG, Log, TEXT("Attempting to drop item: %s"), *SelectedItemID.GetValue())
+			ABaseItem* Item = PlayerCharacter->GetInventory().GetItem(SelectedItemID.GetValue()); 
 			PlayerCharacter->GetInventory().DropItem(SelectedItemID.GetValue());
 			PlayerCharacter->GetInventory().CloseInventory();
+
+			UE_LOG(LogUE5TopDownARPG, Log, TEXT("Pickup Item: %p"), PlayerCharacter->GetPickupItem())
+			UE_LOG(LogUE5TopDownARPG, Log, TEXT("Item: %p"), Item)
+			
+			if(Item && !PlayerCharacter->GetPickupItem())
+			{
+				UE_LOG(LogUE5TopDownARPG, Log, TEXT("Activating UI for dropped item: %s"), *SelectedItemID.GetValue())
+				PlayerCharacter->ActivatePickupUI(Item);
+			}
+			else if(PlayerCharacter->GetPickupItem())
+			{
+				UE_LOG(LogUE5TopDownARPG, Log, TEXT("Activating UI for overlapping item: %s"), *SelectedItemID.GetValue())
+				PlayerCharacter->ActivatePickupUI(PlayerCharacter->GetPickupItem());
+			}
 		}
 	}
 	else if(PlayerCharacter->IsPlayerInPickup())
 	{
 		//We must pickup the item.
-		PlayerCharacter->GetInventory().AddItemOnGround(PlayerCharacter->GetPickupItem());
+		UE_LOG(LogUE5TopDownARPG, Log, TEXT("Pickup Item: %p"), PlayerCharacter->GetPickupItem())
+		PlayerCharacter->GetInventory().AddItem(PlayerCharacter->GetPickupItem());
+		PlayerCharacter->SetPickupItem(nullptr);
+		UE_LOG(LogUE5TopDownARPG, Log, TEXT("Pickup Item: %p"), PlayerCharacter->GetPickupItem())
 	}
 }
 
 void AUE5TopDownARPGPlayerController::OnInventoryItemUseStarted()
 {
+	AUE5TopDownARPGCharacter* PlayerCharacter = Cast<AUE5TopDownARPGCharacter>(GetCharacter());
+	if(!PlayerCharacter)
+	{
+		return;
+	}
+
+	if(PlayerCharacter->GetInventory().IsInventoryOpen())
+	{
+		TOptional<const FString> SelectedItemID = PlayerCharacter->GetInventory().GetSelectedItemID();
+		if(SelectedItemID.IsSet())
+		{
+			UE_LOG(LogUE5TopDownARPG, Log, TEXT("Attempting to drop item: %s"), *SelectedItemID.GetValue())
+			PlayerCharacter->GetInventory().UseItem(SelectedItemID.GetValue());
+			PlayerCharacter->GetInventory().CloseInventory();
+		}
+	}
 }

@@ -78,16 +78,26 @@ bool UInventorySystem::IsInventoryOpen() const
 	return IsValid(InventoryWidget) && InventoryWidget->GetVisibility() == ESlateVisibility::Visible;
 }
 
-void UInventorySystem::AddItemOnGround(ABaseItem* Item)
+void UInventorySystem::AddItem(ABaseItem* Item)
 {
 	if (!IsInited || !IsValid(Item))
 	{
 		return;
 	}
 
-	Items.Add(Item);
-	//GetWorld()->DestroyActor(Item);
-	Item->HideObject();
+	ABaseItem* ItemWithSameID = GetItem(Item->GetID());
+
+	if(ItemWithSameID)
+	{
+		ItemWithSameID->AddAmount(Item->GetAmount());
+		GetWorld()->DestroyActor(Item);
+	}
+	else
+	{
+		Items.Add(Item);
+		Item->HideObject();
+	}
+	
 	UE_LOG(LogUE5TopDownARPG, Log, TEXT("Added item %s | %s"), *Item->GetItemName(), *Item->GetID());
 	if (IsValid(InventoryWidget) && InventoryWidget->GetVisibility() == ESlateVisibility::Visible)
 	{
@@ -96,20 +106,22 @@ void UInventorySystem::AddItemOnGround(ABaseItem* Item)
 	}
 }
 
-void UInventorySystem::AddCreatedItem(ABaseItem* Item)
+ABaseItem* UInventorySystem::GetItem(const FString& ItemID)
 {
-	if (!IsInited || !Item)
+	if (!IsInited)
 	{
-		return;
+		return nullptr;
+	}
+	
+	for (auto& Item : Items)
+	{
+		if (Item->GetID().Compare(ItemID, ESearchCase::IgnoreCase) == 0)
+		{
+			return Item;
+		}
 	}
 
-	Items.Add(Item);
-	Item->HideObject();
-	if (IsValid(InventoryWidget) && InventoryWidget->GetVisibility() == ESlateVisibility::Visible)
-	{
-		UE_LOG(LogUE5TopDownARPG, Log, TEXT("Sync Items"));
-		InventoryWidget->SyncItems(Items);
-	}
+	return nullptr;
 }
 
 void UInventorySystem::DropItem(const FString& ItemID)
@@ -119,33 +131,24 @@ void UInventorySystem::DropItem(const FString& ItemID)
 		return;
 	}
 
-	int Index = 0;
+	int i;
 	bool HasAnItemBeenDropped = false;
-	for (auto& Item : Items)
+	for (i = 0; i < Items.Num(); i++)
 	{
-		if (Item->GetID().Compare(ItemID, ESearchCase::IgnoreCase) == 0)
+		if (Items[i]->GetID().Compare(ItemID, ESearchCase::IgnoreCase) == 0)
 		{
 			//We found the item we searched for. So we drop it in the feet of our character.
 			const FVector Position = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetCharacter()->GetActorLocation();
-
-			/*AActor* SpawnedItem = GetWorld()->SpawnActor(TSubclassOf<ABaseItem>(), &Position);
-			if(IsValid(SpawnedItem))
-			{
-				ABaseItem* DroppedItem = Cast<ABaseItem>(SpawnedItem);
-				DroppedItem->CopyDataFrom(*Item);
-			}*/
-
-			Item->ShowObject(&Position);
+			Items[i]->ShowObject(&Position);
 
 			HasAnItemBeenDropped = true;
 			break;
 		}
-		Index++;
 	}
 
 	if (HasAnItemBeenDropped)
 	{
-		Items.RemoveAt(Index);
+		Items.RemoveAt(i);
 		if (IsValid(InventoryWidget) && InventoryWidget->GetVisibility() == ESlateVisibility::Visible)
 		{
 			UE_LOG(LogUE5TopDownARPG, Log, TEXT("Sync Items"));
@@ -180,4 +183,36 @@ TOptional<const FString> UInventorySystem::GetSelectedItemID()
 void UInventorySystem::SetInventoryWidgetClass(TSubclassOf<UUserWidget> Class)
 {
 	InventoryWidgetClass = Class;
+}
+
+void UInventorySystem::UseItem(const FString& ItemID)
+{
+	if (!IsInited)
+	{
+		return;
+	}
+
+	int Index = 0;
+	bool HasAnItemBeenDropped = false;
+	for (auto& Item : Items)
+	{
+		if (Item->GetID().Compare(ItemID, ESearchCase::IgnoreCase) == 0)
+		{
+			//Here do anything you want with the item.
+			//TODO: add custom Item Use Action.
+			HasAnItemBeenDropped = true;
+			break;
+		}
+		Index++;
+	}
+
+	if (HasAnItemBeenDropped)
+	{
+		Items.RemoveAt(Index);
+		if (IsValid(InventoryWidget) && InventoryWidget->GetVisibility() == ESlateVisibility::Visible)
+		{
+			UE_LOG(LogUE5TopDownARPG, Log, TEXT("Sync Items"));
+			InventoryWidget->SyncItems(Items);
+		}
+	}
 }

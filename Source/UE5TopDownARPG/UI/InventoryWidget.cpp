@@ -30,6 +30,15 @@ void UInventoryWidget::SyncItems(const TArray<ABaseItem*>& Items)
 			break;
 		}
 	}
+
+	for (; i < MAX_ITEMS; i++)
+	{
+		auto ItemWidget = GetSlot(i);
+		if (ItemWidget)
+		{
+			ItemWidget->UpdateLook(nullptr);
+		}
+	}
 }
 
 void UInventoryWidget::CheckForDuplicateSelected()

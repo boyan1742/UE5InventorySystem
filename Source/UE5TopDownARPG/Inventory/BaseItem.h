@@ -30,6 +30,8 @@ public:
 	int GetAmount() const;
 	UTexture2D* GetIcon() const;
 
+	void AddAmount(int AdditionalAmount);
+
 	void HideObject();
 	void ShowObject(const FVector* Position = nullptr);
 

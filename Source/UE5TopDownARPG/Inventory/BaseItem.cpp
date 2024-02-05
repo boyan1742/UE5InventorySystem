@@ -88,6 +88,11 @@ UTexture2D* ABaseItem::GetIcon() const
 	return ItemIcon;
 }
 
+void ABaseItem::AddAmount(int AdditionalAmount)
+{
+	Amount += AdditionalAmount;
+}
+
 void ABaseItem::HideObject()
 {
 	SetActorScale3D(FVector(0,0,0));

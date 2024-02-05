@@ -26,9 +26,10 @@ public:
 
 	bool IsInventoryOpen() const;
 
-	void AddItemOnGround(ABaseItem* Item);
-	void AddCreatedItem(ABaseItem* Item);
+	void AddItem(ABaseItem* Item);
+	ABaseItem* GetItem(const FString& ItemID);
 	void DropItem(const FString& ItemID);
+	void UseItem(const FString& ItemID);
 
 	TOptional<const FString> GetSelectedItemID();
 

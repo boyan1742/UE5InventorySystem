@@ -11,18 +11,26 @@ void UInventoryItemWidget::UpdateLook(ABaseItem* Item)
 	if(!Item)
 	{
 		UE_LOG(LogUE5TopDownARPG, Log, TEXT("Tried to update the image texture with a null item."));
-		ItemIconImage->SetBrushFromTexture(nullptr);	
+		ItemIconImage->SetBrushFromTexture(nullptr, true);
+		ItemAmountText->SetText(FText::FromString("0"));
+		ItemAmountText->SetColorAndOpacity(FSlateColor(FColor(1,1,1, 0)));
 		return;
 	}
 
 	if(!Item->GetIcon())
 	{
 		UE_LOG(LogUE5TopDownARPG, Log, TEXT("Tried to update the image texture with an item with null texture."));
-		ItemIconImage->SetBrushFromTexture(nullptr);
+		ItemIconImage->SetBrushFromTexture(nullptr, true);
 	}
 	else
 	{
 		ItemIconImage->SetBrushFromTexture(Item->GetIcon(), true);
+	}
+
+	if(Item->GetAmount() > 0)
+	{
+		ItemAmountText->SetText(FText::FromString(FString::FromInt(Item->GetAmount())));
+		ItemAmountText->SetColorAndOpacity(FSlateColor(FColor(0,0,0)));
 	}
 }
 

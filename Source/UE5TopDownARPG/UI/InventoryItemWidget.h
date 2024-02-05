@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/Border.h"
 #include "Components/Image.h"
+#include "Components/TextBlock.h"
 #include "InventoryItemWidget.generated.h"
 
 /**
@@ -30,6 +31,8 @@ private:
 	UImage* ItemIconImage;
 	UPROPERTY(meta=(BindWidget))
 	UBorder* ItemIconBorder;
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* ItemAmountText;
 
 	bool SelectedByUser = false;
 	FDateTime LastTimeSelected = FDateTime::Now();
