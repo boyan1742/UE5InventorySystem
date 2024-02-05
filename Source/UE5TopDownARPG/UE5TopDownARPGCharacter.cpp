@@ -185,6 +185,11 @@ void AUE5TopDownARPGCharacter::DeactivatePickupUI()
 	}
 }
 
+void AUE5TopDownARPGCharacter::SetPickupItem(ABaseItem* Item)
+{
+	PickupItem = Item;
+}
+
 void AUE5TopDownARPGCharacter::TakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
                                              AController* InstigateBy, AActor* DamageCauser)
 {

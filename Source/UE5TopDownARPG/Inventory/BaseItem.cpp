@@ -2,6 +2,8 @@
 
 
 #include "BaseItem.h"
+
+#include "InventorySystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "UE5TopDownARPG/UE5TopDownARPG.h"
 #include "UE5TopDownARPG/UE5TopDownARPGCharacter.h"
@@ -99,7 +101,10 @@ void ABaseItem::ShowObject(const FVector* Position)
 
 	if(Position)
 	{
-		SetActorLocation(*Position);
+		FVector Pos(Position->X, Position->Y, GetActorLocation().Z);
+		
+		SetActorLocation(Pos);
+		MeshComponent->SetWorldLocation(Pos);
 	}
 }
 
@@ -126,7 +131,14 @@ void ABaseItem::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 		return;
 	}
 
-	PlayerPawn->ActivatePickupUI(this);
+	if(!PlayerPawn->GetInventory().IsInventoryOpen())
+	{
+		PlayerPawn->ActivatePickupUI(this);
+	}
+	else
+	{
+		PlayerPawn->SetPickupItem(this);
+	}
 }
 
 void ABaseItem::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Other, UPrimitiveComponent* OtherComp,
@@ -144,5 +156,12 @@ void ABaseItem::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 		return;
 	}
 
-	PlayerPawn->DeactivatePickupUI();
+	if(PlayerPawn->IsPlayerInPickup())
+	{
+		PlayerPawn->DeactivatePickupUI();
+	}
+	else
+	{
+		PlayerPawn->SetPickupItem(nullptr);
+	}
 }

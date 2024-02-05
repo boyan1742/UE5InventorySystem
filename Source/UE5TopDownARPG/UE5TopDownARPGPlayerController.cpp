@@ -169,10 +169,20 @@ void AUE5TopDownARPGPlayerController::OnInventoryOpenStarted()
 		if(PlayerCharacter->GetInventory().IsInventoryOpen())
 		{
 			PlayerCharacter->GetInventory().CloseInventory();
+
+			if(PlayerCharacter->GetPickupItem())
+			{
+				PlayerCharacter->ActivatePickupUI(PlayerCharacter->GetPickupItem());
+			}
 		}
 		else
 		{
 			PlayerCharacter->GetInventory().OpenInventory();
+
+			if(PlayerCharacter->IsPlayerInPickup())
+			{
+				PlayerCharacter->DeactivatePickupUI();
+			}
 		}
 	}
 }
@@ -185,11 +195,6 @@ void AUE5TopDownARPGPlayerController::OnInventoryItemDropPickupStarted()
 		return;
 	}
 
-	if(PlayerCharacter->IsPlayerInPickup())
-	{
-		//We must pickup the item.
-		PlayerCharacter->GetInventory().AddItemOnGround(PlayerCharacter->GetPickupItem());
-	}
 	if(PlayerCharacter->GetInventory().IsInventoryOpen())
 	{
 		TOptional<const FString> SelectedItemID = PlayerCharacter->GetInventory().GetSelectedItemID();
@@ -197,7 +202,13 @@ void AUE5TopDownARPGPlayerController::OnInventoryItemDropPickupStarted()
 		{
 			UE_LOG(LogUE5TopDownARPG, Log, TEXT("Attempting to drop item: %s"), *SelectedItemID.GetValue())
 			PlayerCharacter->GetInventory().DropItem(SelectedItemID.GetValue());
+			PlayerCharacter->GetInventory().CloseInventory();
 		}
+	}
+	else if(PlayerCharacter->IsPlayerInPickup())
+	{
+		//We must pickup the item.
+		PlayerCharacter->GetInventory().AddItemOnGround(PlayerCharacter->GetPickupItem());
 	}
 }
 

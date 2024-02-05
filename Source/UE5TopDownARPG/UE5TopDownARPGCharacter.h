@@ -31,7 +31,7 @@ public:
 
 	FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
 
-	FORCEINLINE float GetHealth()const { return Health; }
+	FORCEINLINE float GetHealth() const { return Health; }
 
 	bool ActivateAbility(FVector Location);
 
@@ -40,6 +40,7 @@ public:
 	class ABaseItem* GetPickupItem() const;
 	void ActivatePickupUI(ABaseItem* Item);
 	void DeactivatePickupUI();
+	void SetPickupItem(ABaseItem* Item);
 
 private:
 	/** Top down camera */
@@ -64,13 +65,13 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	class UInventoryPickupItemWidget* InventoryPickupItemWidget;
-	
+
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class UUserWidget> InventoryPickupItemWidgetClass;
 
 	UPROPERTY()
 	AActor* PickupItem;
-	
+
 	UPROPERTY(EditDefaultsOnly)
 	class UBehaviorTree* BehaviorTree;
 
@@ -95,11 +96,11 @@ private:
 	TSubclassOf<AActor> AfterDeathSpawnClass;
 
 	UFUNCTION()
-	void TakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigateBy, AActor* DamageCauser);
+	void TakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
+	                   class AController* InstigateBy, AActor* DamageCauser);
 
 	UFUNCTION()
 	void OnRep_SetHealth(float OldHealth);
 
 	void Death();
 };
-

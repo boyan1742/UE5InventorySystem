@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InventorySystem.h"
+
+#include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "UE5TopDownARPG/UE5TopDownARPG.h"
 
@@ -124,7 +126,7 @@ void UInventorySystem::DropItem(const FString& ItemID)
 		if (Item->GetID().Compare(ItemID, ESearchCase::IgnoreCase) == 0)
 		{
 			//We found the item we searched for. So we drop it in the feet of our character.
-			const FVector Position = UGameplayStatics::GetPlayerController(GetWorld(), 0)->K2_GetActorLocation();
+			const FVector Position = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetCharacter()->GetActorLocation();
 
 			/*AActor* SpawnedItem = GetWorld()->SpawnActor(TSubclassOf<ABaseItem>(), &Position);
 			if(IsValid(SpawnedItem))
